@@ -2,18 +2,17 @@
  *   @author Sean Stock (sstock6829@gmail.com)
  *   @version 0.0.2
  *   @summary Project 4 Arrays || created: 10.9.17
- *   @todo Make it so duplicate movie titles cannot be added. Clean up for self-documentation.
+ *   @todo
  */
 
 "use strict";
 const PROMPT = require('readline-sync');
 
-let averageRating, rating, i, maxI, numberMovies;
-// variable "i" is short for integer. It is the variable used to determine the identities of blocks in the "movieInfo" array.
+let averageRating, rating, listNumber, maxListNumber, numberMovies;
 let newMovie, existingMovie;
 let existingOrNew, viewOrNew, reRun, checkExisting, checkNew;
 let movieInfo = [];
-const MIN_MOVIES = 0;
+const MIN_MOVIES = 0, TITLE = 0, RATING = 1, AVERAGE_RATING = 2, NUMBER_RATINGS = 3;
 
 /**
  * @method
@@ -21,11 +20,11 @@ const MIN_MOVIES = 0;
  */
 function main(){
     numberMovies = 0;
-    maxI = 0;
+    maxListNumber = 0;
     reRun = 0;
     while (reRun === 0){
         while (numberMovies === MIN_MOVIES || existingOrNew === 0) {
-            i = 0;
+            listNumber = 0;
             populateNewMovieInfo();
             numberMovies++;
             promptExistingOrNew();
@@ -54,15 +53,15 @@ main();
  * @desc Populates the movieInfo array for a movie that is not currently on the list
  */
 function populateNewMovieInfo(){
-    i = maxI;
-    movieInfo[i] = [];
-    movieInfo[i][0] = setMovieTitle();
+    listNumber = maxListNumber;
+    movieInfo[listNumber] = [];
+    movieInfo[listNumber][TITLE] = setMovieTitle();
     checkNew = Number(1);
     checkExisting = Number(0);
-    movieInfo[i][1] = setRating();
-    movieInfo[i][2] = setAverageRating();
-    movieInfo[i][3] = 1;
-    maxI++;
+    movieInfo[listNumber][RATING] = setRating();
+    movieInfo[listNumber][AVERAGE_RATING] = setAverageRating();
+    movieInfo[listNumber][NUMBER_RATINGS] = 1;
+    maxListNumber++;
 }
 
 /**
@@ -73,8 +72,8 @@ function populateExistingMovieInfo(){
     checkExisting = Number(1);
     checkNew = Number(0);
     setRating();
-    movieInfo[i][3]++;
-    movieInfo[i][2] = setAverageRating();
+    movieInfo[listNumber][NUMBER_RATINGS]++;
+    movieInfo[listNumber][AVERAGE_RATING] = setAverageRating();
 }
 
 /**
@@ -83,13 +82,12 @@ function populateExistingMovieInfo(){
  */
 function promptMovieTitle(){
     existingMovie = PROMPT.question(`Please enter the title of the movie you are selecting: `);
-    i = 0;
-    let realTitle = movieInfo[i][0];
-    while (existingMovie !== realTitle && i < maxI){
-        realTitle = movieInfo[i][0];
-        console.log(`realTitle is ${realTitle}`);
+    listNumber = 0;
+    let realTitle = movieInfo[listNumber][TITLE];
+    while (existingMovie !== realTitle && listNumber < maxListNumber){
+        realTitle = movieInfo[listNumber][TITLE];
         if (existingMovie !== realTitle){
-            i++;
+            listNumber++;
         }
     }
     if (existingMovie === realTitle){
@@ -119,13 +117,13 @@ function promptViewOrNew(){
  */
 function displayAverage(){
     process.stdout.write('\x1Bc');
-    i = 0;
-    let realTitle = movieInfo[i][0];
-    let realAverage = movieInfo[i][2];
-    while (existingMovie !== realTitle && i < maxI){
-        realTitle = movieInfo[i][0];
-        realAverage = movieInfo[i][2];
-        i++;
+    listNumber = 0;
+    let realTitle = movieInfo[listNumber][TITLE];
+    let realAverage = movieInfo[listNumber][AVERAGE_RATING];
+    while (existingMovie !== realTitle && listNumber < maxListNumber){
+        realTitle = movieInfo[listNumber][TITLE];
+        realAverage = movieInfo[listNumber][AVERAGE_RATING];
+        listNumber++;
     }
     console.log(`The average rating for "${realTitle}" is ${realAverage}`);
 }
@@ -136,11 +134,11 @@ function displayAverage(){
  */
 function displayMovies(){
     process.stdout.write('\x1Bc');
-    i = Number(0);
+    listNumber = Number(0);
     let n = 1;
-    while (i < maxI){
-        console.log(`\n${n}. ${movieInfo[i][0]}`);
-        i++;
+    while (listNumber < maxListNumber){
+        console.log(`\n${n}. ${movieInfo[listNumber][TITLE]}`);
+        listNumber++;
         n++;
     }
 }
@@ -192,8 +190,8 @@ function setAverageRating(){
         averageRating = rating;
     }
     else if (checkExisting === 1){
-        let numberRatings = movieInfo[i][3];
-        let currentAverage = movieInfo[i][2];
+        let numberRatings = movieInfo[listNumber][NUMBER_RATINGS];
+        let currentAverage = movieInfo[listNumber][AVERAGE_RATING];
         let currentNumberRatings = numberRatings - 1;
         let currentTotal = currentAverage * currentNumberRatings;
         let newTotal = currentTotal + rating;
