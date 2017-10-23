@@ -1,14 +1,14 @@
 /**
  *   @author Sean Stock (sstock6829@gmail.com)
- *   @version 0.0.1
+ *   @version 0.0.2
  *   @summary Project 4 Arrays || created: 10.9.17
- *   @todo Allow a user to view previous entries about movies or create their own.
+ *   @todo Make it so duplicate movie titles cannot be added. Clean up for self-documentation.
  */
 
 "use strict";
 const PROMPT = require('readline-sync');
 
-let averageRating, rating, numberRatings, i, maxI, numberMovies;
+let averageRating, rating, i, maxI, numberMovies;
 // variable "i" is short for integer. It is the variable used to determine the identities of blocks in the "movieInfo" array.
 let newMovie, existingMovie;
 let existingOrNew, viewOrNew, reRun, checkExisting, checkNew;
@@ -61,7 +61,7 @@ function populateNewMovieInfo(){
     checkExisting = Number(0);
     movieInfo[i][1] = setRating();
     movieInfo[i][2] = setAverageRating();
-    movieInfo[i][3] = setNumberRatings();
+    movieInfo[i][3] = 1;
     maxI++;
 }
 
@@ -73,12 +73,13 @@ function populateExistingMovieInfo(){
     checkExisting = Number(1);
     checkNew = Number(0);
     setRating();
+    movieInfo[i][3]++;
+    movieInfo[i][2] = setAverageRating();
 }
 
 /**
  * @method
  * @desc Allows user to select a movie from the list
- * @returns {title}
  */
 function promptMovieTitle(){
     existingMovie = PROMPT.question(`Please enter the title of the movie you are selecting: `);
@@ -86,7 +87,10 @@ function promptMovieTitle(){
     let realTitle = movieInfo[i][0];
     while (existingMovie !== realTitle && i < maxI){
         realTitle = movieInfo[i][0];
-        i++;
+        console.log(`realTitle is ${realTitle}`);
+        if (existingMovie !== realTitle){
+            i++;
+        }
     }
     if (existingMovie === realTitle){
         reRun = Number(0);
@@ -143,7 +147,7 @@ function displayMovies(){
 
 /**
  * @method
- * @desc Mutates the movieTitle variable
+ * @desc Mutates the newMovie variable
  * @returns {newMovie}
  */
 function setMovieTitle(){
@@ -154,7 +158,7 @@ function setMovieTitle(){
 
 /**
  * @method
- * @desc Mutates the rating variable
+ * @desc Mutates the rating variable. Allows user to input a rating for a specific movie.
  * @returns {rating}
  */
 function setRating(){
@@ -162,42 +166,39 @@ function setRating(){
     process.stdout.write('\x1Bc');
     console.log(`Please enter ratings of 0-5 stars.`);
     if (checkExisting === 1 && checkNew === 0){
-        rating = PROMPT.question(`\nHow many stars do you give "${existingMovie}"? `);
+        rating = Number(PROMPT.question(`\nHow many stars do you give "${existingMovie}"? `));
         while (rating < MIN_RATING || rating > MAX_RATING || /^[a-zA-Z]/.test(rating)) {
             console.log(`"${rating}" is an incorrect value. Please try again.`);
-            rating = PROMPT.question(`\nHow many stars do you give "${existingMovie}"? `);
+            rating = Number(PROMPT.question(`\nHow many stars do you give "${existingMovie}"? `));
         }
     }
     else if (checkNew === 1 && checkExisting === 0){
-        rating = PROMPT.question(`\nHow many stars do you give "${newMovie}"? `);
+        rating = Number(PROMPT.question(`\nHow many stars do you give "${newMovie}"? `));
         while (rating < MIN_RATING || rating > MAX_RATING || /^[a-zA-Z]/.test(rating)){
             console.log(`"${rating}" is an incorrect value. Please try again.`);
-            rating = PROMPT.question(`\nHow many stars do you give "${newMovie}"? `);
+            rating = Number(PROMPT.question(`\nHow many stars do you give "${newMovie}"? `));
         }
     }
     return rating;
 }
 
 /**
-   * @method
-   * @desc Mutates the numberRatings variable
-   * @returns {numberRatings}
- */
-function setNumberRatings(){
-    if (numberRatings == null){
-        numberRatings = 0;
-    }
-    numberRatings++;
-    return numberRatings;
-}
-
-/**
  * @method
- * @desc Creates a random average rating for the movie
+ * @desc Calculates average rating for a movie
  * @returns {averageRating}
  */
 function setAverageRating(){
-    averageRating = Math.floor(Math.random() * 5);
+    if (checkNew === 1){
+        averageRating = rating;
+    }
+    else if (checkExisting === 1){
+        let numberRatings = movieInfo[i][3];
+        let currentAverage = movieInfo[i][2];
+        let currentNumberRatings = numberRatings - 1;
+        let currentTotal = currentAverage * currentNumberRatings;
+        let newTotal = currentTotal + rating;
+        averageRating = newTotal / numberRatings;
+    }
     return averageRating;
 }
 
